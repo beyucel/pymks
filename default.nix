@@ -46,6 +46,7 @@ in
       nixpkgs.graphviz
       pypkgs.graphviz
       pypkgs.distributed
+      pypkgs.ipdb
       black
       pypkgs.appdirs
       toml

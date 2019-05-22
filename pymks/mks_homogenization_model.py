@@ -185,6 +185,7 @@ class MKSHomogenizationModel(MKSStructureAnalysis):
         self._linker.set_params(connector=prop_linker)
 
     def fit(self, X, y, reduce_labels=None, confidence_index=None, size=None):
+
         """
         Fits data by calculating 2-point statistics from X, preforming
         dimension reduction using dimension_reducer, and fitting the reduced
@@ -256,6 +257,7 @@ class MKSHomogenizationModel(MKSStructureAnalysis):
 
 
         """
+        print("hello")
         if self.compute_correlations:
             if size is not None:
                 X = self.basis._reshape_feature(X, size)
@@ -309,8 +311,8 @@ class MKSHomogenizationModel(MKSStructureAnalysis):
         ...                         correlations=[(0, 0)])
         >>> y_pred_stats = model.predict(X_corr_test)
         >>> assert np.allclose(y_pred_stats, y_pred, atol=1e-3)
-
         """
+
         if not hasattr(self._linker.get_params()['connector'], "coef_"):
             raise RuntimeError('fit() method must be run before predict().')
         _size = self._size_axes(self.basis)
