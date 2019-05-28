@@ -235,81 +235,37 @@ class TwoPoint(BaseEstimator, TransformerMixin):
         """
         return self
 
+class FlattenTransformer(BaseEstimator, TransformerMixin):
+    """Reshape data ready for the LocalizationRegressor
 
-
-
-class LocalizationRegressor(BaseEstimator, RegressorMixin):
-    """Perform the localization in Sklearn pipelines
-
-    Allows the localization to be part of a Sklearn pipeline
+    Sklearn likes flat image data, but MKS expects shaped data. This
+    class transforms the shape of flat data into shaped image data for
+    MKS.
 
     Attributes:
-        redundancy_func: function to remove redundant elements from
-            the coefficient matrix
-        coeff: the coefficient matrix
-        y_data_shape: the shape of the predicited data
+       shape: the shape of the reshaped data (ignoring the first axis)
 
-    >>> make_data = lambda s, c: da.from_array(
-    ...     np.arange(np.prod(s),
-    ...               dtype=float).reshape(s),
-    ...     chunks=c
-    ... )
-
-    >>> X = make_data((6, 4, 4, 3), (2, 4, 4, 1))
-    >>> y = make_data((6, 4, 4), (2, 4, 4))
-
-    >>> y_out = LocalizationRegressor().fit(X, y).predict(X)
-
-    >>> assert np.allclose(y, y_out)
-
-    >>> print(
-    ...     pipe(
-    ...         LocalizationRegressor(),
-    ...         lambda x: x.fit(X, y.reshape(6, 16)).predict(X).shape
-    ...     )
-    ... )
-    (6, 16)
+    >>> data = np.arange(18).reshape((2, 9))
+    >>> ReshapeTransformer((None, 3, 3)).fit(None, None).transform(data).shape
+    (2, 3, 3)
 
     """
 
-    def __init__(self, redundancy_func=lambda _: (slice(None),)):
-        """Instantiate a LocalizationRegressor
+    def __init__(self):
+        """Instantiate a ReshapeTransformer
 
         Args:
-            redundancy_func: function to remove redundant elements
-                from the coefficient matrix
+            shape: the shape of the reshaped data (ignoring the first axis)
         """
-        self.redundancy_func = redundancy_func
-        self.coeff = None
-        self.y_data_shape = None
-
-    def fit(self, x_data, y_data):
-        """Fit the data
+    def transform(self, x_data):
+        """Transform the X data
 
         Args:
-            x_data: the X data to fit
-            y_data: the y data to fit
-
-        Returns:
-            the fitted LocalizationRegressor
+            x_data: the data to be transformed
         """
-        self.y_data_shape = y_data.shape
-        y_data_reshape = reshape(y_data, x_data.shape[:-1])
-        y_data_da = da.from_array(y_data_reshape, chunks=x_data.chunks[:-1])
-        self.coeff = fit_disc(x_data, y_data_da, self.redundancy_func)
+        return flatten(x_data)
+
+    def fit(self, *_):
+        """Only necessary to make pipelines work
+        """
         return self
-
-    def predict(self, x_data):
-        """Predict the data
-
-        Args:
-            x_data: the X data to predict
-
-        Returns:
-            The predicted y data
-        """
-        if len(self.y_data_shape) == len(x_data.shape) - 1:
-            new_shape = (1,) + self.coeff.shape[:-1]
-        else:
-            new_shape = (1, np.prod(self.coeff.shape[:-1]))
-        return reshape(_predict_disc(x_data, self.coeff), new_shape)
