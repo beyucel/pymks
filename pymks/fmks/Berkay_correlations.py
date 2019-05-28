@@ -151,44 +151,6 @@ def flatten(data):
     """
     return data.reshape(data.shape[0], -1)
 
-
-class ReshapeTransformer(BaseEstimator, TransformerMixin):
-    """Reshape data ready for the LocalizationRegressor
-
-    Sklearn likes flat image data, but MKS expects shaped data. This
-    class transforms the shape of flat data into shaped image data for
-    MKS.
-
-    Attributes:
-       shape: the shape of the reshaped data (ignoring the first axis)
-
-    >>> data = np.arange(18).reshape((2, 9))
-    >>> ReshapeTransformer((None, 3, 3)).fit(None, None).transform(data).shape
-    (2, 3, 3)
-
-    """
-
-    def __init__(self, shape):
-        """Instantiate a ReshapeTransformer
-
-        Args:
-            shape: the shape of the reshaped data (ignoring the first axis)
-        """
-        self.shape = shape
-
-    def transform(self, x_data):
-        """Transform the X data
-
-        Args:
-            x_data: the data to be transformed
-        """
-        return reshape(x_data, self.shape)
-
-    def fit(self, *_):
-        """Only necessary to make pipelines work
-        """
-        return self
-
 class TwoPoint(BaseEstimator, TransformerMixin):
     """Reshape data ready for the LocalizationRegressor
 
