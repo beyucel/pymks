@@ -151,7 +151,7 @@ def flatten(data):
     """
     return data.reshape(data.shape[0], -1)
 
-class TwoPoint(BaseEstimator, TransformerMixin):
+class TwoPointAutocorrelation(BaseEstimator, TransformerMixin):
     """Reshape data ready for the LocalizationRegressor
 
     Sklearn likes flat image data, but MKS expects shaped data. This
@@ -191,6 +191,58 @@ class TwoPoint(BaseEstimator, TransformerMixin):
             x_data=da.from_array(x_data,chunks=chunks)
 
         return auto_correlation(x_data).compute()
+
+    def fit(self, *_):
+        """Only necessary to make pipelines work
+        """
+        return self
+
+
+class TwoPointCrosscorrelation(BaseEstimator, TransformerMixin):
+    """Reshape data ready for the LocalizationRegressor
+
+    Sklearn likes flat image data, but MKS expects shaped data. This
+    class transforms the shape of flat data into shaped image data for
+    MKS.
+
+    Attributes:
+       shape: the shape of the reshaped data (ignoring the first axis)
+
+    >>> data = np.arange(18).reshape((2, 9))
+    >>> ReshapeTransformer((None, 3, 3)).fit(None, None).transform(data).shape
+    (2, 3, 3)
+
+    """
+
+    def __init__(self):
+        """Instantiate a ReshapeTransformer
+
+        Args:
+            shape: the shape of the reshaped data (ignoring the first axis)
+        """
+
+    def transform(self,x_data,x_data2):
+
+
+
+        """Transform the X data
+
+
+
+        Args:
+            x_data: the data to be transformed
+        """
+        if type(x_data) is np.ndarray:
+
+            chunks=x_data.shape
+            x_data=da.from_array(x_data,chunks=chunks)
+        if type(x_data2) is np.ndarray:
+
+            chunks=x_data2.shape
+            x_data2=da.from_array(x_data2,chunks=chunks)
+
+
+        return cross_correlation(x_data,x_data2).compute()
 
     def fit(self, *_):
         """Only necessary to make pipelines work
