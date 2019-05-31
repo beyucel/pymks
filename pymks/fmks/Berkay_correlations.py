@@ -283,3 +283,51 @@ class FlattenTransformer(BaseEstimator, TransformerMixin):
         """Only necessary to make pipelines work
         """
         return self
+class TwoPointcorrelations(BaseEstimator, TransformerMixin):
+    """Reshape data ready for the LocalizationRegressor
+
+    Sklearn likes flat image data, but MKS expects shaped data. This
+    class transforms the shape of flat data into shaped image data for
+    MKS.
+
+    Attributes:
+       shape: the shape of the reshaped data (ignoring the first axis)
+
+    >>> data = np.arange(18).reshape((2, 9))
+    >>> ReshapeTransformer((None, 3, 3)).fit(None, None).transform(data).shape
+    (2, 3, 3)
+
+    """
+
+    def __init__(self,correlations):
+        self.correlations=correlations
+        print(correlations)
+        """Instantiate a ReshapeTransformer
+
+
+        Args:
+            shape: the shape of the reshaped data (ignoring the first axis)
+        """
+
+    def transform(self,x_data):
+
+
+
+        """Transform the X data
+
+
+
+        Args:
+            x_data: the data to be transformed
+        """
+        if type(x_data) is np.ndarray:
+
+            chunks=x_data.shape
+            x_data=da.from_array(x_data,chunks=chunks)
+
+        return auto_correlation(x_data).compute()
+
+    def fit(self, *_):
+        """Only necessary to make pipelines work
+        """
+        return self
