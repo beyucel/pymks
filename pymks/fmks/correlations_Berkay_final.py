@@ -264,7 +264,7 @@ class FlattenTransformer(BaseEstimator, TransformerMixin):
     data for scikit learn pipeline
 
     >>> data = np.arange(50).reshape((2, 5, 5))
-    >>> FlattenTransformer.transform(data).shape
+    >>> FlattenTransformer().transform(data).shape
     (2, 25)
 
     """
