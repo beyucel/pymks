@@ -257,7 +257,6 @@ class MKSHomogenizationModel(MKSStructureAnalysis):
 
 
         """
-        print("hello")
         if self.compute_correlations:
             if size is not None:
                 X = self.basis._reshape_feature(X, size)

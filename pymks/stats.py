@@ -177,6 +177,9 @@ def correlate(X, basis, periodic_axes=None, n_jobs=1,
         L = basis.n_states
         _auto, _cross = _auto_correlations(L), _cross_correlations(L)
         correlations = (_auto[0] + _cross[0], _auto[1] + _cross[1])
+        print(_auto[0])
+        print(_cross[0])
+        print(correlations)
     else:
         correlations = _correlations_to_indices(correlations, basis)
     return _compute_stats(X, basis, correlations, confidence_index,

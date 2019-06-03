@@ -95,6 +95,7 @@ class MKSStructureAnalysis(BaseEstimator):
         self.n_components = n_components
         if self.correlations is None and basis is not None:
             correlations = [(0, l) for l in range(len(self.basis.n_states))]
+            print(correlations,self.basis.n_states)
             self.correlations = correlations
         if not callable(getattr(self.dimension_reducer,
                                 "fit_transform", None)):
