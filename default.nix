@@ -49,12 +49,7 @@ in
       pypkgs.multipledispatch
       nixpkgs.graphviz
       pypkgs.graphviz
-<<<<<<< HEAD
-      pypkgs.distributed
-      pypkgs.ipdb
-=======
       distributed
->>>>>>> WorkingOnTestCases
       black
       pypkgs.appdirs
       toml
