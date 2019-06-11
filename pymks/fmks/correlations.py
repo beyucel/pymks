@@ -1,6 +1,10 @@
 """MKS Correlation Module
 For computing auto and cross corelations under assumption
+<<<<<<< HEAD
 of  periodic and non-periodic boundary conditions using discreete fourier
+=======
+of  periodic or  non-periodic boundary conditions using discreete fourier
+>>>>>>> WorkingOnTestCases
 transform.
 
 
@@ -9,6 +13,8 @@ where X=[n_sample,x,y.n_basis]
 """
 import numpy as np
 from toolz.curried import pipe, curry
+from sklearn.base import TransformerMixin, BaseEstimator
+import dask.array as da
 from .func import dafftshift, dafftn, daifftn, daconj
 from sklearn.base import RegressorMixin, TransformerMixin, BaseEstimator
 import dask.array as da
@@ -151,12 +157,18 @@ def flatten(data):
     (2, 9)
     """
     return data.reshape(data.shape[0], -1)
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> WorkingOnTestCases
 @curry
 def return_slice(x_data, cutoff):
     """
     returns region of interest around the center voxel upto the cutoff length
     """
 
+<<<<<<< HEAD
     s = np.asarray(x_data.shape).astype(int) // 2
 
     if x_data.ndim == 2:
@@ -170,6 +182,21 @@ def return_slice(x_data, cutoff):
 
 @curry
 def Two_point_stats(boundary="periodic", corrtype="auto", cutoff=None, args0=None, args1=None):
+=======
+    sliced = np.asarray(x_data.shape).astype(int) // 2
+
+    make_slice = lambda i: slice(sliced[i] - cutoff, sliced[i] + cutoff + 1)
+
+    if x_data.ndim == 2:
+        return x_data[make_slice(0), make_slice(1)]
+    if x_data.ndim == 3:
+        return x_data[make_slice(0), make_slice(1), make_slice(2)]
+    return Exception("Data should be either 2D or 3D")
+
+
+@curry
+def two_point_stats(boundary="periodic", cutoff=None, args0=None, args1=None):
+>>>>>>> WorkingOnTestCases
     """
     Wrapper function that returns auto or crosscorrelations for
     input fields by calling appropriate modules.
@@ -177,6 +204,7 @@ def Two_point_stats(boundary="periodic", corrtype="auto", cutoff=None, args0=Non
         boundary : "periodic" or "nonperiodic"
         corrtype : "auto" or "cross"
         cutoff   :  cutoff radius of interest for the 2PtStatistics field
+<<<<<<< HEAD
 	args0    : 2D or 3D primary field of interest
 	args1    : 2D or 3D field of interest which needs to be cross-correlated with args1
     """
@@ -202,6 +230,30 @@ def Two_point_stats(boundary="periodic", corrtype="auto", cutoff=None, args0=Non
             y = padder(args1)
 
     return corr_master(x, y) / x[0].size if corrtype is "cross" else corr_master(x, x) / x[0].size
+=======
+        args0    : 2D or 3D primary field of interest
+        args1    : 2D or 3D field of interest which needs to be cross-correlated
+                   with args1
+    """
+
+    ndim = args0.ndim
+    # size = args0.size
+    x_data = args0
+    y_data = args1
+    if cutoff is None:
+        cutoff = args0.shape[0] // 2
+    # Make sure this is working
+    if boundary == "periodic":
+        padder = lambda x: x
+    elif boundary == "nonperiodic":
+        padder = lambda x: np.pad(
+            x, [(cutoff, cutoff)] * ndim, mode="constant", constant_values=0
+        )
+        x_data = padder(x_data)
+        y_data = padder(y_data)
+    return return_slice((corr_master(x_data, y_data) / x_data[0].size), cutoff)
+
+>>>>>>> WorkingOnTestCases
 
 class TwoPointcorrelation(BaseEstimator, TransformerMixin):
     """Reshape data ready for the LocalizationRegressor
@@ -214,7 +266,11 @@ class TwoPointcorrelation(BaseEstimator, TransformerMixin):
     Add test
     """
 
+<<<<<<< HEAD
     def __init__(self,boundary="periodic", corrtype="auto", cutoff=None,correlations=[1,0]):
+=======
+    def __init__(self, boundary="periodic", cutoff=None, correlations=None):
+>>>>>>> WorkingOnTestCases
         """Instantiate a TwoPointcorrelation
 
         Args:
@@ -223,6 +279,7 @@ class TwoPointcorrelation(BaseEstimator, TransformerMixin):
             cutoff   :  cutoff radius of interest for the 2PtStatistics field
             correlations: patial correlations to compute
         """
+<<<<<<< HEAD
         self.boundary=boundary
         self.corrtype=corrtype
         self.cutoff=cutoff
@@ -248,6 +305,33 @@ class TwoPointcorrelation(BaseEstimator, TransformerMixin):
             y_data=da.from_array(y_data,chunks=chunks)
 
         return Two_point_stats(boundary=self.boundary, corrtype=self.corrtype, cutoff=self.cutoff, args0=x_data, args1=y_data).compute()
+=======
+        self.boundary = boundary
+        self.cutoff = cutoff
+        self.xdata = correlations[0]
+        self.ydata = correlations[1]
+
+    def transform(self, x_input=None):
+        """Transform the X data
+
+            Args:
+                x_data: the data to be transformed
+        """
+        x_data = x_input[:, :, :, self.xdata]
+        y_data = x_input[:, :, :, self.ydata]
+
+        if isinstance(x_data, np.ndarray):
+
+            chunks = x_data.shape
+            x_data = da.from_array(x_data, chunks=chunks)
+        if isinstance(y_data, np.ndarray):
+            chunks = y_data.shape
+            y_data = da.from_array(y_data, chunks=chunks)
+
+        return two_point_stats(
+            boundary=self.boundary, cutoff=self.cutoff, args0=x_data, args1=y_data
+        ).compute()
+>>>>>>> WorkingOnTestCases
 
     def fit(self, *_):
         """Only necessary to make pipelines work
@@ -272,7 +356,13 @@ class FlattenTransformer(BaseEstimator, TransformerMixin):
         """Instantiate a FlattenTransformer
 
         """
+<<<<<<< HEAD
     def transform(self, x_data):
+=======
+
+    @staticmethod
+    def transform(x_data):
+>>>>>>> WorkingOnTestCases
         """Transform the X data
 
         Args:
