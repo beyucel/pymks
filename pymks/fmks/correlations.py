@@ -160,9 +160,9 @@ def return_slice(x_data, cutoff):
     """
     returns region of interest around the center voxel upto the cutoff length
     """
-    print(x_data.shape[1:])
+    #print(x_data.shape[1:])
     sliced = np.asarray(x_data.shape[1:]).astype(int) // 2
-    print(sliced)
+    #print(sliced)
     if any(x < cutoff for x in sliced):
         raise NameError("Cut off is too large for the input array")
     print(type(sliced))
