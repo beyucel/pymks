@@ -25,6 +25,8 @@ jobs:
           name: Install Pymks
           command: |
             python setup.py install
+            which python
+            which jupyter
       - run:
           name: Install libGL
           command: |
