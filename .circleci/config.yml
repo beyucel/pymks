@@ -24,6 +24,7 @@ jobs:
       - run:
           name: Install Pymks
           command: |
+            source activate conda-test1
             python setup.py install
             python -c "import pymks;pymks.test()"
       - run:
