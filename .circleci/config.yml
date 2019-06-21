@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Activate env
           command: |
-            conda activate conda-test1
+            source activate conda-test1
       # Step 3: run linter and tests
       - run:
           name: Install Pymks
