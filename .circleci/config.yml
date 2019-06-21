@@ -24,4 +24,4 @@ jobs:
       - run:
           name: run tests
           command: |
-            py.test
+            python -c "import pymks;pymks.test()"
