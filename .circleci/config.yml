@@ -28,8 +28,10 @@ jobs:
       - run:
           name: run tests
           command: |
+            source activate conda-test1
             python -c "import pymks;pymks.test()"
       - run:
           name: run tests
           command: |
+            source activate conda-test1
             py.test
