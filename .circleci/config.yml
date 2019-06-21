@@ -25,6 +25,7 @@ jobs:
           name: Install Pymks
           command: |
             python setup.py install
+            python -c "import pymks;pymks.test()"
       - run:
           name: run tests
           command: |
