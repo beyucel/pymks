@@ -16,6 +16,10 @@ jobs:
           command: |
             conda env create -f environment.yml
             source activate conda-test1
+      - run:
+          name: Activate env
+          command: |
+            conda activate conda-test1
       # Step 3: run linter and tests
       - run:
           name: Install Pymks
@@ -25,3 +29,7 @@ jobs:
           name: run tests
           command: |
             python -c "import pymks;pymks.test()"
+      - run:
+          name: run tests
+          command: |
+            py.test
