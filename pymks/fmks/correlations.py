@@ -171,6 +171,14 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
     padder = identity if periodic_boundary else nonperiodic_padder
     return center_slice(cross_correlation(padder(arr1), padder(arr2)), cutoff)
 
+@curry
+def calc_corel(i, c,boundary,cutoff):
+    return pipe(i,
+                lambda x: da.from_array(x, chunks=x.shape),
+                lambda x: (x[..., c[0]], x[..., c[1]]),
+                lambda x: two_point_stats(
+                    *x, periodic_boundary=boundary, cutoff=cutoff),
+               )
 
 
 class TwoPointcorrelation(BaseEstimator, TransformerMixin):
@@ -200,26 +208,12 @@ class TwoPointcorrelation(BaseEstimator, TransformerMixin):
          Args:
            data: the data to be transformed
         """
-        @curry
-        def calc_corel(i, c):
-            return pipe(i,
-                        lambda x: da.from_array(x, chunks=x.shape),
-                        lambda x: (x[..., c[0]], x[..., c[1]]),
-                        lambda x: two_point_stats(
-                            *x, periodic_boundary=self.periodic_boundary, cutoff=self.cutoff),
-                       )
 
-        def calc(i, values):
-            return map(calc_corel(i), values)
-
-        def compute_def(a):
-            return a.compute()
-
-        return  pipe(data,
-                    lambda x:calc(x,self.correlations),
-                    lambda x:list(map(compute_def,x)),
-                    lambda x:np.stack(x,axis=-1)
-                    )
+        return  pipe(self.correlations,
+            map_(calc_corel(data, boundary=self.periodic_boundary, cutoff=self.cutoff)),
+            list,
+            lambda x:da.stack(x,axis=-1)
+        )
 
     def fit(self, *_):
         """Only necessary to make pipelines work
