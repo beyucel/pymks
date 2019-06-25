@@ -163,6 +163,7 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
     dask.array<getitem, shape=(2, 3), dtype=float64, chunksize=(2, 3)>
 
     """
+    # if correlations is None
     if cutoff is None:
         cutoff = arr1.shape[0]
     nonperiodic_padder = lambda x: np.pad(
@@ -172,10 +173,13 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
     return center_slice(cross_correlation(padder(arr1), padder(arr2)), cutoff)
 
 
-
 class TwoPointcorrelation(BaseEstimator, TransformerMixin):
     """Calculate the 2-point stats for two arrays
     """
+
+    # def __init__(
+    #     self, periodic_boundary=True, cutoff=None, correlations1=0, correlations2=0
+    # ):
 
     def __init__(
         self, periodic_boundary=True, cutoff=None, correlations=[(0,0)]
@@ -192,7 +196,7 @@ class TwoPointcorrelation(BaseEstimator, TransformerMixin):
         self.periodic_boundary = periodic_boundary
         self.cutoff = cutoff
         self.correlations = correlations
-
+        # self.correlations2 = correlations2
 
     def transform(self, data):
         """Transform the data
@@ -200,26 +204,25 @@ class TwoPointcorrelation(BaseEstimator, TransformerMixin):
          Args:
            data: the data to be transformed
         """
-        @curry
-        def calc_corel(i, c):
-            return pipe(i,
-                        lambda x: da.from_array(x, chunks=x.shape),
-                        lambda x: (x[..., c[0]], x[..., c[1]]),
-                        lambda x: two_point_stats(
-                            *x, periodic_boundary=self.periodic_boundary, cutoff=self.cutoff),
-                       )
 
-        def calc(i, values):
-            return map(calc_corel(i), values)
-
-        def compute_def(a):
-            return a.compute()
-
-        return  pipe(data,
-                    lambda x:calc(x,self.correlations),
-                    lambda x:list(map(compute_def,x)),
-                    lambda x:np.stack(x,axis=-1)
-                    )
+        if self.cutoff==None:
+            StatsShape=data.shape[1]
+        else:
+            StatsShape=2*(self.cutoff)+1
+        i=0
+        correl=np.empty((data.shape[0],StatsShape,StatsShape,len(self.correlations))
+        for Cor in self.correlations:
+            pipe(
+                data,
+                lambda x: da.from_array(x, chunks=x.shape),
+                lambda x: (x[..., Cor[0]], x[..., Cor[1]]),
+                lambda x: two_point_stats(
+                    *x, periodic_boundary=self.periodic_boundary, cutoff=self.cutoff),
+                lambda x: correl[:,:,:,i]=x
+                ),
+            )
+            i=i+1
+        return correl
 
     def fit(self, *_):
         """Only necessary to make pipelines work

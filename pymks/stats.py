@@ -175,6 +175,7 @@ def correlate(X, basis, periodic_axes=None, n_jobs=1,
         periodic_axes = []
     if correlations is None:
         L = basis.n_states
+        print(L)
         _auto, _cross = _auto_correlations(L), _cross_correlations(L)
         correlations = (_auto[0] + _cross[0], _auto[1] + _cross[1])
     else:
