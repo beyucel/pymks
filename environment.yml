@@ -2,7 +2,7 @@ name: conda-test1
 channels:
   - conda-forge
 dependencies:
-  - dask=0.18
+  - dask
   - toolz
   - python=3.6
   - coverage=4.4.1
