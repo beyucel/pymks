@@ -33,11 +33,7 @@ jobs:
             apt-get --yes install libglu1-mesa
             apt-get --yes install libgl1-mesa-glx
             apt-get --yes install libxrender1
-      - run:
-          name: run tests
-          command: |
-            source activate conda-test1
-            py.test notebooks/syspath.ipynb
+
 
       - run:
           name: run tests
