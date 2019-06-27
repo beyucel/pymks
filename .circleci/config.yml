@@ -35,15 +35,15 @@ jobs:
             apt-get --yes install libxrender1
 
 
-      # - run:
-      #     name: run tests
-      #     command: |
-      #       source activate conda-test1
-      #       python -c "import pymks;pymks.test()"
       - run:
           name: run tests
           command: |
             source activate conda-test1
-            python setup.py install
-            which python
-            py.test
+            python -c "import pymks;pymks.test()"
+      # - run:
+      #     name: run tests
+      #     command: |
+      #       source activate conda-test1
+      #       python setup.py install
+      #       which python
+      #       py.test
