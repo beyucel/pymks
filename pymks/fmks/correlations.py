@@ -165,6 +165,8 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
     """
     if cutoff is None:
         cutoff = arr1.shape[0]
+    if type(cutoff) is int:
+            
     nonperiodic_padder = lambda x: np.pad(
         x, [(cutoff, cutoff)] * arr1.ndim, mode="constant", constant_values=0
     )
