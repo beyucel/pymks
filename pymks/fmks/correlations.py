@@ -13,7 +13,7 @@ from toolz.curried import map as map_, identity
 from sklearn.base import TransformerMixin, BaseEstimator
 import dask.array as da
 from .func import dafftshift, dafftn, daifftn, daconj, flatten
-from .func import sequence, make_da
+from .func import sequence, make_da,zero_pad
 
 
 def cross_correlation(arr1, arr2):
@@ -164,13 +164,16 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
 
     """
     if cutoff is None:
-        cutoff = arr1.shape[1]
+        print(arr1.shape[1:])
+        cutoff = arr1[0].shape[0]
         print(cutoff)
-    nonperiodic_padder = lambda x: np.pad(
-        x, [(cutoff, cutoff)] * arr1.ndim, mode="constant", constant_values=0
-    )
+    # nonperiodic_padder = lambda x: np.pad(
+    #     x, [(cutoff, cutoff)] * arr1.ndim, mode="constant", constant_values=0
+    # )
+    nonperiodic_padder =
     # periodic_padder
     padder = identity if periodic_boundary else nonperiodic_padder
+    print(padder(arr1).shape)
     return center_slice(cross_correlation(padder(arr1), padder(arr2)), cutoff)
 
 
