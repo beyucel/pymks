@@ -167,13 +167,15 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
         print(arr1.shape[1:])
         cutoff = arr1[0].shape[0]
         print(cutoff)
-    # nonperiodic_padder = lambda x: np.pad(
-    #     x, [(cutoff, cutoff)] * arr1.ndim, mode="constant", constant_values=0
-    # )
-    nonperiodic_padder =
+    nonperiodic_padder = lambda x: da.pad(
+        x,[(0,0)]+ [(cutoff, cutoff)] * (arr1.ndim-1), mode="constant", constant_values=0
+    )
+    # nonperiodic_padder =
     # periodic_padder
+    print(arr1.ndim)
     padder = identity if periodic_boundary else nonperiodic_padder
     print(padder(arr1).shape)
+    # print(padder(arr1))
     return center_slice(cross_correlation(padder(arr1), padder(arr2)), cutoff)
 
 
