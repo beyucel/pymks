@@ -21,8 +21,8 @@ def cross_correlation(arr1, arr2):
     Returns the cross-correlation of and input field with another field.
 
     Args:
-      arr1: the input field
-      arr2: the other input field
+      arr1: the input field (n_samples,n_x,n_y)
+      arr2: the other input field (n_samples,n_x,n_y)
 
     Returns:
       an nd-array of same dimension as the input field
@@ -73,7 +73,7 @@ def auto_correlation(arr):
     Returns auto-corrlation of and input field with itself.
 
     Args:
-      arr: the input field
+      arr: the input field (n_samples,n_x,n_y)
 
     Returns:
       an nd-array of same dimension as the input field
@@ -107,7 +107,7 @@ def center_slice(x_data, cutoff):
     cutoff length
 
     Args:
-      x_data: the data array, first index is left unchanged
+      x_data: the data array (n_samples,n_x,n_y), first index is left unchanged
       cutoff: cutoff size
 
     Returns:
@@ -148,9 +148,9 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
     """Calculate the 2-points stats for two arrays
 
     Args:
-      arr1: array used to calculate cross-correlations
-      arr2: array used to calculate cross-correlations
-      periodic_boundary: whether to assume a periodic boudnary (default is true)
+      arr1: array used to calculate cross-correlations (n_samples,n_x,n_y)
+      arr2: array used to calculate cross-correlations (n_samples,n_x,n_y)
+      periodic_boundary: whether to assume a periodic boundary (default is true)
       cutoff: the subarray of the 2 point stats to keep
 
     Returns:
@@ -164,17 +164,23 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
 
     """
     if cutoff is None:
-        print(arr1.shape[1:])
-        cutoff = arr1[0].shape[0]
+        # print("B",np.min(arr1.shape[1:]))
+        cutoff = np.floor((np.min(arr1.shape[1:])-1)/2)
         print(cutoff)
-    nonperiodic_padder = lambda x: da.pad(
+        # print("c",cutoff)
+    nonperiodic_padder = lambda x: np.pad(
         x,[(0,0)]+ [(cutoff, cutoff)] * (arr1.ndim-1), mode="constant", constant_values=0
     )
+
+
+    if cutoff > np.floor((np.min(arr1.shape[1:])-1)/2):
+         cutoff = np.floor((np.min(arr1.shape[1:])-1)/2)
+
     # nonperiodic_padder =
     # periodic_padder
-    print(arr1.ndim)
+    # print(arr1.ndim)
     padder = identity if periodic_boundary else nonperiodic_padder
-    print(padder(arr1).shape)
+    # print(padder(arr1).shape)
     # print(padder(arr1))
     return center_slice(cross_correlation(padder(arr1), padder(arr2)), cutoff)
 
@@ -184,7 +190,7 @@ def correlations_multiple(data, correlations, periodic_boundary=True, cutoff=Non
     """Calculate 2-point stats for a multiple auto/cross correlation
 
     Args:
-      data: the discretized data
+      data: the discretized data (n_samples,n_x,n_y,n_correlation)
       correlation_pair: the correlation pairs
       periodic_boundary: whether to assume a periodic boudnary (default is true)
       cutoff: the subarray of the 2 point stats to keep
