@@ -54,7 +54,6 @@ def cross_correlation(arr1, arr2):
     >>> print(f_data.chunks)
     ((2, 2, 1, 1, 2, 2), (5,), (5,))
     """
-
     faxes = lambda x: tuple(np.arange(x.ndim - 1) + 1)
 
     return pipe(
@@ -166,12 +165,15 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
     if cutoff is None:
         # print("B",np.min(arr1.shape[1:]))
         cutoff = np.floor((np.min(arr1.shape[1:])-1)/2)
-        print(cutoff)
+        # print(cutoff)
         # print("c",cutoff)
-    nonperiodic_padder = lambda x: np.pad(
-        x,[(0,0)]+ [(cutoff, cutoff)] * (arr1.ndim-1), mode="constant", constant_values=0
-    )
+    # nonperiodic_padder = lambda x: np.pad(
+    #     x,[(0,0)]+ [(cutoff, cutoff)] * (arr1.ndim-1), mode="constant", constant_values=0
+    # ).rechunk((x.chunks[0], -1, -1, x.chunks[-1]))
 
+    nonperiodic_padder =sequence(lambda x: np.pad(
+        x,[(0,0)]+ [(cutoff, cutoff)] * (arr1.ndim-1), mode="constant", constant_values=0
+    ),lambda x: x.rechunk(x.shape))
 
     if cutoff > np.floor((np.min(arr1.shape[1:])-1)/2):
          cutoff = np.floor((np.min(arr1.shape[1:])-1)/2)
@@ -181,8 +183,22 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None):
     # print(arr1.ndim)
     padder = identity if periodic_boundary else nonperiodic_padder
     # print(padder(arr1).shape)
-    # print(padder(arr1))
-    return center_slice(cross_correlation(padder(arr1), padder(arr2)), cutoff)
+    # print(padder(arr1).compute())
+    nonperiodic_normalize=lambda x: auto_correlation(padder(np.ones_like(x)))
+
+    nonperiodic_stats= sequence(lambda x : cross_correlation(padder(x[0]), padder(x[1])),
+        lambda x : x/nonperiodic_normalize(arr1),lambda x: center_slice(x,cutoff)
+        )
+    periodicstats=sequence(lambda x : cross_correlation(padder(x[0]), padder(x[1]))
+        ,lambda x: center_slice(x,cutoff)
+        )
+    stats=periodicstats if periodic_boundary else nonperiodic_stats
+
+
+    # normalize=identity if periodic_boundary else nonperiodic_normalize
+    # stats =center_slice(cross_correlation(padder(arr1), padder(arr2)), cutoff)
+    # print(nonperiodic_normalize(arr1).compute().shape)
+    return stats([arr1,arr2])
 
 
 @make_da
