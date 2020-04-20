@@ -249,9 +249,14 @@ def rechunk(data, chunks):
     """
     if isinstance(data, np.ndarray):
         rechunk_ = da.from_array
+        return rechunk_(data, chunks=chunks)
+
     else:
-        rechunk_ = da.rechunk
-    return rechunk_(data, chunks=chunks)
+        return data
+
+        # This is wrong
+
+
 
 
 def make_da(func):
