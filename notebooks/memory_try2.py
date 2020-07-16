@@ -38,10 +38,10 @@ x_data_gen = da.concatenate(tmp)
 
 @profile
 def HomogenizationPipeline(x):
-    a1=PrimitiveTransformer(n_state=2, min_=0.0, max_=1.0).transform(x).compute()
-    a2=TwoPointCorrelation(periodic_boundary=True, cutoff=15,correlations=[(1,1)]).transform(a1).compute()
-    a3=FlattenTransformer().transform(a2).compute()
-    a4=PCA(n_components=3).fit_transform(a3).compute()
-    return a4
+    a1=PrimitiveTransformer(n_state=2, min_=0.0, max_=1.0).transform(x).persist()
+    a1=TwoPointCorrelation(periodic_boundary=True, cutoff=15,correlations=[(1,1)]).transform(a1).persist()
+    a1=FlattenTransformer().transform(a1).persist()
+    a1=PCA(n_components=3).fit_transform(a1)
+    return a1
 
 HomogenizationPipeline(x_data_gen)
