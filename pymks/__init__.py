@@ -28,9 +28,16 @@ from .fmks.correlations import FlattenTransformer
 from .fmks.correlations import TwoPointCorrelation
 from .fmks.data.checkerboard import generate_checkerboard
 from .fmks.pair_correlations import paircorr_from_twopoint
+<<<<<<< HEAD
 from .fmks import GenericTransformer
 from .fmks.correlations import two_point_stats, correlations_multiple
 from .fmks.data import solve_fe
+=======
+from .fmks.graspi import graph_descriptors
+from .fmks.graspi import GraphDescriptors
+from .fmks.graspi import GenericTransformer
+
+>>>>>>> 66d44020b9da0a2b8e684257eb12ff4d6c9ff32c
 
 
 # the following will be deprecated
@@ -87,7 +94,13 @@ __all__ = [
     "TwoPointCorrelation",
     "generate_checkerboard",
     "paircorr_from_twopoint",
+<<<<<<< HEAD
     "GenericTransformer",
     "two_point_stats",
     "correlations_multiple",
+=======
+    "graph_descriptors",
+    "GraphDescriptors",
+    "GenericTransformer",
+>>>>>>> 66d44020b9da0a2b8e684257eb12ff4d6c9ff32c
 ]

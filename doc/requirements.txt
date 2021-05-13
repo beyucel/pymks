@@ -9,6 +9,12 @@ nbsphinx==0.5.1
 m2r2
 Deprecated
 sphinx-jinja
+<<<<<<< HEAD
 alabaster
 IPython
+=======
+cython
+pandas
+dask[dataframe]
+>>>>>>> 66d44020b9da0a2b8e684257eb12ff4d6c9ff32c
 # require pandoc which is a haskell package

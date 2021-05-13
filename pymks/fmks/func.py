@@ -6,6 +6,7 @@ from functools import wraps
 import numpy as np
 import dask.array as da
 from dask import delayed
+import dask.dataframe as ddf
 import toolz.curried
 from toolz.curried import iterate, compose, pipe, get, flip, identity
 from toolz.curried import map as fmap
@@ -313,7 +314,11 @@ def make_da_return(func):
 
     def wrapper(arr, *args, **kwargs):
         isnd = lambda x: isinstance(x, np.ndarray)
+<<<<<<< HEAD
         compute = lambda x: x.compute() if hasattr(x, "compute") else x
+=======
+        compute = lambda x: x.compute()
+>>>>>>> 66d44020b9da0a2b8e684257eb12ff4d6c9ff32c
         return pipe(
             arr,
             rechunk(arr.shape if isnd(arr) else arr.chunks),
@@ -324,6 +329,7 @@ def make_da_return(func):
     return wraps(func)(wrapper)
 
 
+<<<<<<< HEAD
 def make_da_return2(func):
     """Decorator to allow functions that take two array arguments to only
     take Dask arrays to take Numpy arrays, but then return a Numpy
@@ -367,6 +373,8 @@ def make_da_return2(func):
     return wraps(func)(wrapper)
 
 
+=======
+>>>>>>> 66d44020b9da0a2b8e684257eb12ff4d6c9ff32c
 @curry
 def extend(shape, arr):
     """Extend an array by adding new axes with shape of shape argument.
@@ -588,3 +596,21 @@ def sort_array(arr):
 
     """
     return sequence(np.argsort, lambda x: (arr[x], x))(arr)
+
+
+def apply_dataframe_func(func, data):
+    """Daskerize a function that takes an array and returns a dataframe
+
+    >>> import pandas
+
+    >>> def func(x):
+    ...     return pandas.DataFrame(x)
+
+    >>> x = np.random.random((10, 4))
+
+    >>> df = apply_dataframe_func(func, da.from_array(x, chunks=(2, 4)))
+    >>> df.get_partition(0).compute().shape
+    (2, 4)
+
+    """
+    return pipe(data.blocks, fmap(delayed(func)), list, ddf.from_delayed)

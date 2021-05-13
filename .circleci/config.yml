@@ -30,6 +30,10 @@ jobs:
             apt-get --yes install libgl1-mesa-glx
             apt-get --yes install libxrender1
             apt-get --yes install build-essential
+<<<<<<< HEAD
+=======
+            apt-get --yes install libboost-all-dev
+>>>>>>> 66d44020b9da0a2b8e684257eb12ff4d6c9ff32c
 
       # only run select notebooks due to possible memory issues
       - run:
@@ -38,6 +42,7 @@ jobs:
           command: |
             set -e
             source activate pymks
+            export PYMKS_USE_BOOST=1
             python setup.py develop
             py.test pymks/fmks --ignore pymks/fmks/tests/test_fe.py
             py.test notebooks/filter.ipynb
