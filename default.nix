@@ -15,6 +15,7 @@
 , graphviz
 , pygraphviz
 , pyfftw
+, zarr
 }:
 buildPythonPackage rec {
   pname = "pymks";
@@ -35,6 +36,7 @@ buildPythonPackage rec {
     graphviz
     pygraphviz
     pyfftw
+    zarr
   ];
 
   checkInputs = [
