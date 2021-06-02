@@ -71,8 +71,38 @@ def cross_correlation(arr1, arr2):
     """
     faxes = lambda x: tuple(np.arange(x.ndim - 1) + 1)
 
-    return pipe(
+#     import gc
+#     def wrap(func):
+#         def func_(arr):
+#             return func(arr).persist()
+#         return func_
+#     from memory_profiler import profile
+#
+#     def profile_func():
+#         _ = arr1.persist()
+#         _ = wrap(dafftn(axes=faxes(arr1)))(_)
+#         _ = wrap(lambda x: daconj(x) * dafftn(arr2, axes=faxes(arr2)))(_)
+#         _ = wrap(daifftn(axes=faxes(arr1)))(_)
+#         _ = wrap(dafftshift(axes=faxes(arr1)))(_)
+#         _ = wrap(lambda x: x.real)(_)
+#         return _
+#
+#     gc.collect()
+# #    input('before profile_func()')
+#     _ = profile_func()
+# #    input('after profile_func()')
+#     return _
+    def debug(x):
+        print('array into fftn')
+        print(x.nbytes)
+        print(x.shape)
+        print(x.dtype)
+        print(x)
+        print(faxes(x))
+        return x
+    return pipe_profiler(
         arr1,
+        debug,
         dafftn(axes=faxes(arr1)),
         lambda x: daconj(x) * dafftn(arr2, axes=faxes(arr2)),
         daifftn(axes=faxes(arr1)),
@@ -284,6 +314,50 @@ def two_point_stats(arr1, arr2, periodic_boundary=True, cutoff=None, mask=None):
     )([arr1, arr2])
 
 
+from memory_profiler import profile
+
+
+def get_memory():
+    import os, psutil
+    print()
+    print('memory_usage (MB):', psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+
+
+def persist(_):
+    if hasattr(_, 'persist'):
+        _ = _.persist()
+    return _
+
+
+def sequence_profiler(*args):
+    def func_(_):
+        for func in args:
+            get_memory()
+            input(f'at before {func.__name__}')
+
+            _ = persist(func(_))
+
+        get_memory()
+        input(f'at before {func.__name__}')
+        return _
+    return func_
+
+
+def pipe_profiler(x, *args):
+    _ = persist(x)
+
+    return sequence_profiler(*args)(_)
+
+
+#    for func in args:#
+#        get_memory()
+#        input(f'before #{func.__name__}')
+#        _ = func(_)
+#        if hasattr(_, 'persist'):
+#            _ = _.persist()
+
+#    return _
+
 @make_da_return
 def correlations_multiple(data, correlations, periodic_boundary=True, cutoff=None):
     r"""Calculate 2-point stats for a multiple auto/cross correlation
@@ -338,6 +412,27 @@ def correlations_multiple(data, correlations, periodic_boundary=True, cutoff=Non
     >>> assert np.allclose(out[..., 0], answer)
 
     """
+
+    from memory_profiler import profile
+
+    def get_memory():
+        import os, psutil
+        print()
+        print('memory_usage (MB):', psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+
+#    @profile
+    def pipe_profiler(x, *args):
+        _ = x
+
+        for func in args:
+            get_memory()
+            input(f'before #{func.__name__}')
+            _ = func(_)
+            if hasattr(_, 'persist'):
+                _ = _.persist()
+
+        return _
+
 
     return pipe(
         range(data.shape[-1]),
